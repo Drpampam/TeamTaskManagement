@@ -6,6 +6,6 @@ namespace TeamTaskManagement.API.Interfaces
     {
         Task<BaseResponse<string>> RegisterAsync(RegisterDto dto);
         Task<BaseResponse<string>> LoginAsync(LoginDto dto);
-        Task<UserDto> GetCurrentUserAsync(string userId);
+        Task<BaseResponse<UserDto>> GetCurrentUserAsync(string userId);
     }
 }

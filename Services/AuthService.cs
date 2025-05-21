@@ -105,10 +105,39 @@ namespace TeamTaskManagement.API.Services
             }
         }
 
-        public async Task<UserDto> GetCurrentUserAsync(string userId)
+        public async Task<BaseResponse<UserDto>> GetCurrentUserAsync(string userId)
         {
-            var user = await _context.Users.FindAsync(Guid.Parse(userId));
-            return new UserDto { Id = user.Id, Username = user.Username, Email = user.Email };
+            try
+            {
+                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                if (user == null)
+                {
+                    return new BaseResponse<UserDto>
+                    {
+                        Message = "User not found.",
+                        ResponseCode = ResponseCodes.FAILURE
+                    };
+                }
+                return new BaseResponse<UserDto>
+                {
+                    Data = new UserDto
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email
+                    },
+                    Message = "Success",
+                    ResponseCode = ResponseCodes.SUCCESS
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<UserDto>
+                {
+                    Message = "An error occurred while creating user profile... Please contact support",
+                    ResponseCode = ResponseCodes.FAILURE
+                };
+            }        
         }
 
         private string GenerateJwt(User user)

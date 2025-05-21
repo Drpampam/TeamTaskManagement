@@ -45,6 +45,10 @@ namespace TeamTaskManagement.API.Controllers
 
         // GET: api/auth/current
         [Authorize]
+        [SwaggerOperation(Summary = $"current user")]
+        [ProducesResponseType(typeof(BaseResponse<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -53,7 +57,8 @@ namespace TeamTaskManagement.API.Controllers
                 return Unauthorized();
 
             var userDto = await _authService.GetCurrentUserAsync(userId);
-            return Ok(userDto);
+            if (userDto.ResponseCode == ResponseCodes.SUCCESS) { return Ok(userDto.Data); }
+            return StatusCode(500, userDto.Data);
         }
     }
 }
