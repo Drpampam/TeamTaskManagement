@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using TeamTaskManagement.API.Interfaces;
-using TeamTaskManagement.API.Models;
 using TeamTaskManagement.API.Response;
 
 namespace TeamTaskManagement.API.Controllers
@@ -23,27 +22,25 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
-        [HttpPost]      
+        [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             var token = await _authService.RegisterAsync(dto);
-            if (token.ResponseCode == ResponseCodes.SUCCESS){return Ok(new { Token = token.Data });}
+            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
             return StatusCode(500, token);
         }
 
         // POST: api/auth/login
+        [SwaggerOperation(Summary = $"user login")]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            try
-            {
-                var token = await _authService.LoginAsync(dto);
-                return Ok(new { Token = token });
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new { Message = ex.Message });
-            }
+            var token = await _authService.LoginAsync(dto);
+            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
+            return StatusCode(500, token);
         }
 
         // GET: api/auth/current

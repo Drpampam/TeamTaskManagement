@@ -61,13 +61,48 @@ namespace TeamTaskManagement.API.Services
 
         }
 
-        public async Task<string> LoginAsync(LoginDto dto)
+        public async Task<BaseResponse<string>> LoginAsync(LoginDto dto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                throw new Exception("Invalid credentials.");
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-            return GenerateJwt(user);
+                if (user == null)
+                {
+                    return new BaseResponse<string>
+                    {
+                        Data = "User not found.",
+                        Message = "Failed",
+                        ResponseCode = ResponseCodes.FAILURE
+                    };
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+                {
+                    return new BaseResponse<string>
+                    {
+                        Data = "Invalid credentials.",
+                        Message = "Failed",
+                        ResponseCode = ResponseCodes.FAILURE
+                    };
+                }
+
+                return new BaseResponse<string>
+                {
+                    Data = GenerateJwt(user),
+                    Message = "Successful",
+                    ResponseCode = ResponseCodes.SUCCESS
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<string>
+                {
+                    Data = ex.Message,
+                    Message = "An error occurred while creating user profile... Please contact support",
+                    ResponseCode = ResponseCodes.FAILURE
+                };
+            }
         }
 
         public async Task<UserDto> GetCurrentUserAsync(string userId)
