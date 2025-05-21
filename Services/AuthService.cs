@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using TeamTaskManagement.API.Interfaces;
 using TeamTaskManagement.API.Models;
+using TeamTaskManagement.API.Response;
 using TeamTaskManagementAPI.Data;
 
 namespace TeamTaskManagement.API.Services
@@ -20,21 +21,44 @@ namespace TeamTaskManagement.API.Services
             _config = config;
         }
 
-        public async Task<string> RegisterAsync(RegisterDto dto)
+        public async Task<BaseResponse<string>> RegisterAsync(RegisterDto dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                throw new Exception("Email already registered.");
-
-            var user = new User
+            try
             {
-                Username = dto.Username,
-                Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-            };
+                if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                    return new BaseResponse<string>
+                    {
+                        Data = "Email already registered.",
+                        Message = "Failed",
+                        ResponseCode = ResponseCodes.FAILURE
+                    };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return GenerateJwt(user);
+                var user = new User
+                {
+                    Username = dto.Username,
+                    Email = dto.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                return new BaseResponse<string>
+                {
+                    Data = GenerateJwt(user),
+                    Message = "Success",
+                    ResponseCode = ResponseCodes.SUCCESS
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<string>
+                {
+                    Data = ex.Message,
+                    Message = "An error occurred while creating user profile... Please contact support",
+                    ResponseCode = ResponseCodes.FAILURE
+                };
+            }
+
         }
 
         public async Task<string> LoginAsync(LoginDto dto)
@@ -72,4 +96,4 @@ namespace TeamTaskManagement.API.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
-} 
+}

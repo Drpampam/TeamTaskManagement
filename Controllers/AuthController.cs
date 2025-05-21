@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using TeamTaskManagement.API.Interfaces;
 using TeamTaskManagement.API.Models;
+using TeamTaskManagement.API.Response;
 
 namespace TeamTaskManagement.API.Controllers
 {
@@ -17,19 +19,16 @@ namespace TeamTaskManagement.API.Controllers
             _authService = authService;
         }
 
-        // POST: api/auth/register
-        [HttpPost("register")]
+        [SwaggerOperation(Summary = $"Register new user")]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
+        [HttpPost]      
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            try
-            {
-                var token = await _authService.RegisterAsync(dto);
-                return Ok(new { Token = token });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            var token = await _authService.RegisterAsync(dto);
+            if (token.ResponseCode == ResponseCodes.SUCCESS){return Ok(new { Token = token.Data });}
+            return StatusCode(500, token);
         }
 
         // POST: api/auth/login
