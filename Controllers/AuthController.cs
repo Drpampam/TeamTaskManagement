@@ -8,7 +8,7 @@ using TeamTaskManagement.API.Response;
 namespace TeamTaskManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -30,7 +30,6 @@ namespace TeamTaskManagement.API.Controllers
             return StatusCode(500, token);
         }
 
-        // POST: api/auth/login
         [SwaggerOperation(Summary = $"user login")]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
@@ -43,7 +42,6 @@ namespace TeamTaskManagement.API.Controllers
             return StatusCode(500, token);
         }
 
-        // GET: api/auth/current
         [Authorize]
         [SwaggerOperation(Summary = $"current user")]
         [ProducesResponseType(typeof(BaseResponse<UserDto>), StatusCodes.Status200OK)]

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeamTaskManagement.API.Interfaces;
+using TeamTaskManagement.API.Response;
 using TeamTaskManagementAPI.Data;
 
 namespace TeamTaskManagement.API.Services
@@ -13,28 +14,68 @@ namespace TeamTaskManagement.API.Services
             _context = context;
         }
 
-        public async Task<List<TaskDto>> GetTasksAsync(Guid teamId, string userId)
+        public async Task<BaseResponse<List<TaskDto>>> GetTasksAsync(Guid teamId, string userId)
         {
-            var guid = Guid.Parse(userId);
-            var isMember = await _context.TeamUsers.AnyAsync(tu => tu.TeamId == teamId && tu.UserId == guid);
-            if (!isMember) throw new UnauthorizedAccessException("Not a member of this team.");
-
-            return await _context.Tasks
-                .Where(t => t.TeamId == teamId)
-                .Include(t => t.AssignedToUser)
-                .Select(t => new TaskDto
+            try
+            {
+                var guid = Guid.Parse(userId);
+                var isMember = await _context.TeamUsers.AnyAsync(tu => tu.TeamId == teamId && tu.UserId == guid);
+                if (isMember)
                 {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    DueDate = t.DueDate,
-                    Status = t.Status.ToString(),
-                    CreatedAt = t.CreatedAt,
-                    AssignedToUserId = t.AssignedToUserId ?? Guid.Empty,
-                    AssignedToUsername = t.AssignedToUser != null ? t.AssignedToUser.Username : "",
-                    CreatedByUserId = t.CreatedByUserId,
-                    TeamId = t.TeamId
-                }).ToListAsync();
+                    var team = await _context.Teams
+                        .Include(t => t.TeamUsers)
+                        .ThenInclude(tu => tu.User)
+                        .FirstOrDefaultAsync(t => t.Id == teamId);
+                    if (team == null)
+                    {
+                        return new BaseResponse<List<TaskDto>>
+                        {
+                            Message = "Team not found.",
+                            ResponseCode = ResponseCodes.FAILURE
+                        };
+                    }
+                    var user = team.TeamUsers.FirstOrDefault(tu => tu.UserId == guid);
+                    if (user == null)
+                    {
+                        return new BaseResponse<List<TaskDto>>
+                        {
+                            Message = "User not found in team.",
+                            ResponseCode = ResponseCodes.FAILURE
+                        };
+                    }
+
+                    var tasks = await _context.Tasks
+                        .Where(t => t.TeamId == teamId)
+                        .Select(t => new TaskDto
+                        {
+                            Id = t.Id,
+                            Title = t.Title,
+                            Description = t.Description,
+                            DueDate = t.DueDate,
+                            Status = t.Status.ToString(),
+                            CreatedAt = t.CreatedAt,
+                            AssignedToUserId = t.AssignedToUserId ?? Guid.Empty,
+                            AssignedToUsername = "",
+                            CreatedByUserId = t.CreatedByUserId,
+                            TeamId = t.TeamId
+                        })
+                        .ToListAsync();
+                    return new BaseResponse<List<TaskDto>>
+                    {
+                        Data = tasks,
+                        Message = "Successful",
+                        ResponseCode = ResponseCodes.SUCCESS
+                    };
+                }                  
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<List<TaskDto>>
+                {
+                    Message = "An error occurred {ex}... Please contact support" + ex.Message,
+                    ResponseCode = ResponseCodes.SERVER_ERROR
+                };
+            }    
         }
 
         public async Task<TaskDto> CreateTaskAsync(Guid teamId, string creatorId, TaskCreateDto dto)
