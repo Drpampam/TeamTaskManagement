@@ -1,11 +1,13 @@
-﻿namespace TeamTaskManagement.API.Interfaces
+﻿using TeamTaskManagement.API.Response;
+
+namespace TeamTaskManagement.API.Interfaces
 {
     public interface ITaskService
     {
-        Task<List<TaskDto>> GetTasksAsync(Guid teamId, string userId);
-        Task<TaskDto> CreateTaskAsync(Guid teamId, string creatorId, TaskCreateDto dto);
-        Task<bool> UpdateTaskAsync(Guid taskId, TaskUpdateDto dto, string userId);
-        Task<bool> DeleteTaskAsync(Guid taskId, string userId);
-        Task<bool> UpdateTaskStatusAsync(Guid taskId, TaskStatusDto dto, string userId);
+        Task<BaseResponse<List<TaskDto>>> GetTasksAsync(string teamId, string userId);
+        Task<BaseResponse<TaskDto>> CreateTaskAsync(string teamId, string creatorId, TaskCreateDto dto);
+        Task<BaseResponse<bool>> UpdateTaskAsync(string taskId, TaskUpdateDto dto, string userId);
+        Task<BaseResponse<bool>> DeleteTaskAsync(string taskId, string userId);
+        Task<BaseResponse<bool>> UpdateTaskStatusAsync(string taskId, TaskStatusDto dto, string userId);
     }
 }

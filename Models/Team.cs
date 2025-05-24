@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace TeamTaskManagement.API.Models
 {
-    public class Team
+    public class Team : BaseEntity
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
 
         public ICollection<TeamUser> TeamUsers { get; set; } = new List<TeamUser>();

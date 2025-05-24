@@ -109,7 +109,7 @@ namespace TeamTaskManagement.API.Services
         {
             try
             {
-                var user = await _context.Users.FindAsync(Guid.Parse(userId));
+                var user = await _context.Users.FindAsync(userId);
                 if (user == null)
                 {
                     return new BaseResponse<UserDto>

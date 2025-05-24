@@ -24,13 +24,13 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpGet("team/{teamId}")]
-        public async Task<IActionResult> GetTasksForTeam(Guid teamId)
+        public async Task<IActionResult> GetTasksForTeam(string teamId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var tasks = await _taskService.GetTasksAsync(teamId, userId);
-            if (tasks.ResponseCode == ResponseCodes.SUCCESS) { return Ok(tasks.Data); }
+            if (tasks.ResponseCode == ResponseCodes.SUCCESS) { return Ok(tasks); }
             return Forbid(userId);
         }
 
@@ -39,7 +39,7 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpPost("team/{teamId}")]
-        public async Task<IActionResult> CreateTask(Guid teamId, [FromBody] TaskCreateDto dto)
+        public async Task<IActionResult> CreateTask(string teamId, [FromBody] TaskCreateDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -60,7 +60,7 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpGet("{taskId}")]
-        public async Task<IActionResult> GetTaskById(Guid taskId)
+        public async Task<IActionResult> GetTaskById(string taskId)
         {
             // This method isn't in your service, but might be useful.
             // You can implement it in your TaskService or skip it here.
@@ -73,15 +73,14 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpPut("{taskId}")]
-        public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] TaskUpdateDto dto)
+        public async Task<IActionResult> UpdateTask(string taskId, [FromBody] TaskUpdateDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var success = await _taskService.UpdateTaskAsync(taskId, dto, userId);
-            if (!success) return Forbid("Not authorized or task not found.");
-
-            return NoContent();
+            if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success); }
+            return StatusCode(500, success);
         }
 
         // DELETE: api/tasks/{taskId}
@@ -90,13 +89,13 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpDelete("{taskId}")]
-        public async Task<IActionResult> DeleteTask(Guid taskId)
+        public async Task<IActionResult> DeleteTask(string taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var success = await _taskService.DeleteTaskAsync(taskId, userId);
-            if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success.Data); }
+            if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success); }
             return Forbid("Not authorized or task not found.");
         }
 
@@ -106,13 +105,13 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpPatch("{taskId}/status")]
-        public async Task<IActionResult> UpdateTaskStatus(Guid taskId, [FromBody] TaskStatusDto dto)
+        public async Task<IActionResult> UpdateTaskStatus(string taskId, [FromBody] TaskStatusDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var success = await _taskService.UpdateTaskStatusAsync(taskId, dto, userId);
-            if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success.Data); }
+            if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success); }
             return Forbid("Not authorized or task not found.");
         }
     }

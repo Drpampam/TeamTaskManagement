@@ -31,16 +31,16 @@ namespace TeamTaskManagement.API.Controllers
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var team = await _teamService.CreateTeamAsync(userId, dto);
-            return CreatedAtAction(nameof(GetTeamMembers), new { teamId = team.Id }, team);
+            return CreatedAtAction(nameof(GetTeamMembers), new { teamId = team.Data.Id }, team);
         }
 
         // POST: api/teams/{teamId}/users
         [SwaggerOperation(Summary = $"add a user to team")]
-        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpPost("{teamId}/users")]
-        public async Task<IActionResult> AddUserToTeam(Guid teamId, [FromBody] string userEmail)
+        public async Task<IActionResult> AddUserToTeam(string teamId, [FromBody] string userEmail)
         {
             var success = await _teamService.AddUserToTeamAsync(teamId, userEmail);
             if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success.Data); }
@@ -53,7 +53,7 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
         [HttpGet("{teamId}/members")]
-        public async Task<IActionResult> GetTeamMembers(Guid teamId)
+        public async Task<IActionResult> GetTeamMembers(string teamId)
         {
             var members = await _teamService.GetTeamMembersAsync(teamId);
             if (members.ResponseCode == ResponseCodes.SUCCESS) { return Ok(members); }
