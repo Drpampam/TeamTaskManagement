@@ -30,7 +30,9 @@ namespace TeamTaskManagement.API.Controllers
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var team = await _teamService.CreateTeamAsync(userId, dto);
-            return CreatedAtAction(nameof(GetTeamMembers), new { teamId = team.Data.Id }, team);
+            if(team.ResponseCode == ResponseCodes.SUCCESS) return CreatedAtAction(nameof(GetTeamMembers), new { teamId = team.Data.Id }, team);
+            if (team.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(team); }
+            return StatusCode(500, team);
         }
 
         [SwaggerOperation(Summary = $"add a user to team")]
@@ -42,6 +44,7 @@ namespace TeamTaskManagement.API.Controllers
         {
             var success = await _teamService.AddUserToTeamAsync(req.TeamId, req.MemberEmail);
             if (success.ResponseCode == ResponseCodes.SUCCESS) { return Ok(success); }
+            if (success.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(success); }
             return StatusCode(500, success);
         }
 
@@ -54,6 +57,7 @@ namespace TeamTaskManagement.API.Controllers
         {
             var members = await _teamService.GetTeamMembersAsync(teamId);
             if (members.ResponseCode == ResponseCodes.SUCCESS) { return Ok(members); }
+            if (members.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(members); }
             return StatusCode(500, members);
         }
 
@@ -69,6 +73,7 @@ namespace TeamTaskManagement.API.Controllers
 
             var members = await _teamService.GetUserTeam(userId);
             if (members.ResponseCode == ResponseCodes.SUCCESS) { return Ok(members); }
+            if (members.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(members); }
             return StatusCode(500, members);
         }
     }

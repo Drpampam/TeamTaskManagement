@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Responses;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -27,6 +28,7 @@ namespace TeamTaskManagement.API.Controllers
         {
             var token = await _authService.RegisterAsync(dto);
             if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token}); }
+            if (token.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(token); }
             return StatusCode(500, token);
         }
 
@@ -39,6 +41,7 @@ namespace TeamTaskManagement.API.Controllers
         {
             var token = await _authService.LoginAsync(dto);
             if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token }); }
+            if (token.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(token); }
             return StatusCode(500, token);
         }
 
@@ -73,6 +76,7 @@ namespace TeamTaskManagement.API.Controllers
 
             var userDto = await _authService.GetCurrentUserAsync(userId);
             if (userDto.ResponseCode == ResponseCodes.SUCCESS) { return Ok(userDto); }
+            if (userDto.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(userDto); }
             return StatusCode(500, userDto.Data);
         }
     }

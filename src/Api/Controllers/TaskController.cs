@@ -52,6 +52,7 @@ namespace TeamTaskManagement.API.Controllers
         {
             var response = await _taskService.CreateTaskAsync(dto);
             if (response.ResponseCode == ResponseCodes.SUCCESS) { return Ok(response); }
+            if (response.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(response); }
             return StatusCode(500, response);
         }
 
@@ -73,6 +74,7 @@ namespace TeamTaskManagement.API.Controllers
 
             var response = await _taskService.UpdateTaskAsync(taskId, dto, userId);
             if (response.ResponseCode == ResponseCodes.SUCCESS) { return Ok(response); }
+            if (response.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(response); }
             return StatusCode(500, response);
         }
 
@@ -93,6 +95,7 @@ namespace TeamTaskManagement.API.Controllers
 
             var response = await _taskService.DeleteTaskAsync(taskId, userId);
             if (response.ResponseCode == ResponseCodes.SUCCESS) { return Ok(response); }
+            if (response.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(response); }
             return StatusCode(500, response);
         }
 
@@ -113,6 +116,7 @@ namespace TeamTaskManagement.API.Controllers
 
             var response = await _taskService.UpdateTaskStatusAsync(taskId, dto, userId);
             if (response.ResponseCode == ResponseCodes.SUCCESS) { return Ok(response); }
+            if (response.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(response); }
             return StatusCode(500, response);
         }
     }
