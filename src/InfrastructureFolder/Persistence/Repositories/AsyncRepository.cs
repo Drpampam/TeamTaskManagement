@@ -8,9 +8,9 @@ namespace Persistence.Repositories
     public class AsyncRepository<TEntity> : IAsyncRepository<TEntity> where TEntity : class
     {
         private readonly DbSet<TEntity> _dbSet;
-        protected DataContext Context;
+        protected ApplicationDbContext Context;
 
-        public AsyncRepository(DataContext context)
+        public AsyncRepository(ApplicationDbContext context)
         {
             Context = context;
             _dbSet = Context.Set<TEntity>();

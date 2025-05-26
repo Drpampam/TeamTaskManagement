@@ -4,7 +4,7 @@ A secure RESTful API for managing team-based tasks and collaboration.
 
 ## Tech Stack
 
-- .NET 8.0
+- .NET 7.0
 - Entity Framework Core
 - SQL Server
 - JWT Authentication
