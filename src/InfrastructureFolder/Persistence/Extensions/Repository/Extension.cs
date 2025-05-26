@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Confgurations;
@@ -12,6 +13,7 @@ namespace Persistence.Extensions.Repository
         {
             services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
         }
     }
 }

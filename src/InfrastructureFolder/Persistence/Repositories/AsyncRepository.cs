@@ -57,5 +57,10 @@ namespace Persistence.Repositories
         {
             return await _dbSet.SingleOrDefaultAsync(predicate);
         }
+
+        public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
     }
 }

@@ -1,9 +1,9 @@
+using Application.Interfaces;
+using Application.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
-using TeamTaskManagement.API.Interfaces;
-using TeamTaskManagement.API.Response;
 
 namespace TeamTaskManagement.API.Controllers
 {
@@ -19,7 +19,6 @@ namespace TeamTaskManagement.API.Controllers
             _teamService = teamService;
         }
 
-        // POST: api/teams
         [SwaggerOperation(Summary = $"Create new team")]
         [ProducesResponseType(typeof(BaseResponse<TeamDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
@@ -34,7 +33,6 @@ namespace TeamTaskManagement.API.Controllers
             return CreatedAtAction(nameof(GetTeamMembers), new { teamId = team.Data.Id }, team);
         }
 
-        // POST: api/teams/{teamId}/users
         [SwaggerOperation(Summary = $"add a user to team")]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
@@ -47,7 +45,6 @@ namespace TeamTaskManagement.API.Controllers
             return StatusCode(500, success);
         }
 
-        // GET: api/teams/{teamId}/members
         [SwaggerOperation(Summary = $"get team members")]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
@@ -60,5 +57,19 @@ namespace TeamTaskManagement.API.Controllers
             return StatusCode(500, members);
         }
 
+        [SwaggerOperation(Summary = $"get team user belongs")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
+        [HttpGet("teams")]
+        public async Task<IActionResult> GetTeam()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var members = await _teamService.GetUserTeam(userId);
+            if (members.ResponseCode == ResponseCodes.SUCCESS) { return Ok(members); }
+            return StatusCode(500, members);
+        }
     }
 }

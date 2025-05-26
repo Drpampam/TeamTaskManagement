@@ -1,9 +1,9 @@
+using Application.Interfaces;
+using Application.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
-using TeamTaskManagement.API.Interfaces;
-using TeamTaskManagement.API.Response;
 
 namespace TeamTaskManagement.API.Controllers
 {
@@ -26,7 +26,7 @@ namespace TeamTaskManagement.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             var token = await _authService.RegisterAsync(dto);
-            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
+            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token}); }
             return StatusCode(500, token);
         }
 
@@ -38,26 +38,26 @@ namespace TeamTaskManagement.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var token = await _authService.LoginAsync(dto);
-            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
+            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token }); }
             return StatusCode(500, token);
         }
 
-        [Authorize]
-        [SwaggerOperation(Summary = $"get all users")]
-        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
-        [HttpPost("getAllUsers")]
-        public async Task<IActionResult> GetUsers([FromBody] GetAllUsers req)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+        //[Authorize]
+        //[SwaggerOperation(Summary = $"get all users")]
+        //[ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
+        //[HttpPost("getAllUsers")]
+        //public async Task<IActionResult> GetUsers([FromBody] GetAllUsers req)
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    if (string.IsNullOrEmpty(userId))
+        //        return Unauthorized();
 
-            var token = await _authService.GetAllActiveUsers(req, userId);
-            if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
-            return StatusCode(500, token);
-        }
+        //    var token = await _authService.GetAllActiveUsers(req, userId);
+        //    if (token.ResponseCode == ResponseCodes.SUCCESS) { return Ok(new { Token = token.Data }); }
+        //    return StatusCode(500, token);
+        //}
 
         [Authorize]
         [SwaggerOperation(Summary = $"current user")]
@@ -72,7 +72,7 @@ namespace TeamTaskManagement.API.Controllers
                 return Unauthorized();
 
             var userDto = await _authService.GetCurrentUserAsync(userId);
-            if (userDto.ResponseCode == ResponseCodes.SUCCESS) { return Ok(userDto.Data); }
+            if (userDto.ResponseCode == ResponseCodes.SUCCESS) { return Ok(userDto); }
             return StatusCode(500, userDto.Data);
         }
     }

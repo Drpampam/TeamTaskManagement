@@ -5,27 +5,27 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TeamTaskManagementAPI.Data;
+using Persistence.Confgurations;
 
 #nullable disable
 
-namespace TeamTaskManagement.API.Migrations
+namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250524013156_added base entity")]
-    partial class addedbaseentity
+    [Migration("20250526050856_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.Task", b =>
+            modelBuilder.Entity("Domain.Models.Task", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -81,7 +81,7 @@ namespace TeamTaskManagement.API.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.Team", b =>
+            modelBuilder.Entity("Domain.Models.Team", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -110,7 +110,7 @@ namespace TeamTaskManagement.API.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.TeamUser", b =>
+            modelBuilder.Entity("Domain.Models.TeamUser", b =>
                 {
                     b.Property<string>("TeamId")
                         .HasColumnType("nvarchar(450)");
@@ -146,7 +146,7 @@ namespace TeamTaskManagement.API.Migrations
                     b.ToTable("TeamUsers");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.User", b =>
+            modelBuilder.Entity("Domain.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -183,20 +183,20 @@ namespace TeamTaskManagement.API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.Task", b =>
+            modelBuilder.Entity("Domain.Models.Task", b =>
                 {
-                    b.HasOne("TeamTaskManagement.API.Models.User", "AssignedToUser")
+                    b.HasOne("Domain.Models.User", "AssignedToUser")
                         .WithMany("AssignedTasks")
                         .HasForeignKey("AssignedToUserId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("TeamTaskManagement.API.Models.User", "CreatedByUser")
+                    b.HasOne("Domain.Models.User", "CreatedByUser")
                         .WithMany("CreatedTasks")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("TeamTaskManagement.API.Models.Team", "Team")
+                    b.HasOne("Domain.Models.Team", "Team")
                         .WithMany("Tasks")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -209,15 +209,15 @@ namespace TeamTaskManagement.API.Migrations
                     b.Navigation("Team");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.TeamUser", b =>
+            modelBuilder.Entity("Domain.Models.TeamUser", b =>
                 {
-                    b.HasOne("TeamTaskManagement.API.Models.Team", "Team")
+                    b.HasOne("Domain.Models.Team", "Team")
                         .WithMany("TeamUsers")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TeamTaskManagement.API.Models.User", "User")
+                    b.HasOne("Domain.Models.User", "User")
                         .WithMany("TeamUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -228,14 +228,14 @@ namespace TeamTaskManagement.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.Team", b =>
+            modelBuilder.Entity("Domain.Models.Team", b =>
                 {
                     b.Navigation("Tasks");
 
                     b.Navigation("TeamUsers");
                 });
 
-            modelBuilder.Entity("TeamTaskManagement.API.Models.User", b =>
+            modelBuilder.Entity("Domain.Models.User", b =>
                 {
                     b.Navigation("AssignedTasks");
 

@@ -12,5 +12,6 @@ namespace Application.Interfaces
         Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IEnumerable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IQueryable<TEntity>> WhereQueryable(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }
