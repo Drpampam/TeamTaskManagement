@@ -53,6 +53,6 @@ public class GetTaskDto
     public string UserId { get; set; }
 }
 
-public record CreateTaskDto(string teamId, string creatorId, TaskCreateDto createTaskDto);
+public record CreateTaskDto(string teamId, TaskCreateDto createTaskDto);
 
 

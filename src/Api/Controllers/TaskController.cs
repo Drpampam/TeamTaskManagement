@@ -50,7 +50,10 @@ namespace TeamTaskManagement.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<TaskDto>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
         {
-            var response = await _taskService.CreateTaskAsync(dto);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var response = await _taskService.CreateTaskAsync(userId , dto);
             if (response.ResponseCode == ResponseCodes.SUCCESS) { return Ok(response); }
             if (response.ResponseCode != ResponseCodes.SERVER_ERROR) { return BadRequest(response); }
             return StatusCode(500, response);

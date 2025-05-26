@@ -91,15 +91,15 @@ namespace Application.Services
             }
         }
 
-        public async Task<BaseResponse<TaskDto>> CreateTaskAsync(CreateTaskDto dto)
+        public async Task<BaseResponse<TaskDto>> CreateTaskAsync(string creatorId, CreateTaskDto dto)
         {
-            _logger.LogInformation("Creating task for team: {TeamId}, creator: {CreatorId}", dto?.teamId, dto?.creatorId);
+            _logger.LogInformation("Creating task for team: {TeamId}, creator: {CreatorId}", dto?.teamId, creatorId);
 
             try
             {
-                if (dto == null || string.IsNullOrEmpty(dto.teamId) || string.IsNullOrEmpty(dto.creatorId) || dto.createTaskDto == null)
+                if (dto == null || string.IsNullOrEmpty(dto.teamId) || string.IsNullOrEmpty(creatorId) || dto.createTaskDto == null)
                 {
-                    _logger.LogWarning("CreateTaskAsync attempt with invalid DTO, TeamId: {TeamId}, CreatorId: {CreatorId}", dto?.teamId, dto?.creatorId);
+                    _logger.LogWarning("CreateTaskAsync attempt with invalid DTO, TeamId: {TeamId}, CreatorId: {CreatorId}", dto?.teamId, creatorId);
                     return new BaseResponse<TaskDto>
                     {
                         ResponseCode = ResponseCodes.VALIDATION_ERROR,
@@ -107,10 +107,10 @@ namespace Application.Services
                     };
                 }
 
-                var isMember = await _teamUserRepository.FirstOrDefaultAsync(tu => tu.TeamId == dto.teamId && tu.UserId == dto.creatorId);
+                var isMember = await _teamUserRepository.FirstOrDefaultAsync(tu => tu.TeamId == dto.teamId && tu.UserId == creatorId);
                 if (isMember == null)
                 {
-                    _logger.LogWarning("User {CreatorId} is not a member of team {TeamId}", dto.creatorId, dto.teamId);
+                    _logger.LogWarning("User {CreatorId} is not a member of team {TeamId}", creatorId, dto.teamId);
                     return new BaseResponse<TaskDto>
                     {
                         ResponseCode = ResponseCodes.VALIDATION_ERROR,
@@ -124,7 +124,7 @@ namespace Application.Services
                     Description = dto.createTaskDto.Description,
                     DueDate = dto.createTaskDto.DueDate,
                     AssignedToUserId = dto.createTaskDto.AssignedToUserId,
-                    CreatedByUserId = dto.creatorId,
+                    CreatedByUserId = creatorId,
                     TeamId = dto.teamId
                 };
 
@@ -144,7 +144,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to create task for team: {TeamId}, creator: {CreatorId}", dto?.teamId, dto?.creatorId);
+                _logger.LogError(ex, "Failed to create task for team: {TeamId}, creator: {CreatorId}", dto?.teamId, creatorId);
                 return new BaseResponse<TaskDto>
                 {
                     ResponseCode = ResponseCodes.SERVER_ERROR,
